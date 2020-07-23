@@ -1,0 +1,73 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+  {% if user.is_authenticated %}
+  <div style="width: 65rem; margin: 15px 10%;" id="message"></div>
+
+    <div id="create-post">
+      <form>
+        <div class="form-group" style="width: 65rem; margin: 15px 10%;">
+          <label for="">Title: </label>
+          <input class="form-control" type="text" id="title" placeholder="Title">
+        </div>
+        <div class="form-group" style="width: 65rem; margin: 15px 10%;">
+        <label for="">Post: </label>
+          <textarea class="form-control" id="post" rows="8" cols="80" placeholder="Your Post."></textarea>
+        </div>
+        <div style=" margin: 15px 10%;">
+          <button type="button" id="create-button" class="btn btn-outline-info my-2">Create</button>
+        </div>
+    </form>
+    </div>
+  {% endif %}
+
+  <div id="all-posts">
+    {% for post in obj %}
+    <div class="col d-flex justify-content-center">
+    <div class="card" style="width: 65rem; margin: 15px 0px;">
+    <h4 class="card-header"><span class="material-icons" style="font-size:28px;">perm_identity</span><a href="/profile/{{post.user.username}}">{{post.user.username}}</a></h4>
+      <div class="card-body" style="border: 3px;">
+            <h5 class="card-title"><strong>{{post.title}}</strong></h5>
+            <h6 class="card-text">{{post.post}}</h6>
+        {% if user.is_authenticated %}
+          {% if request.user == post.user %}
+            <a href="/edits/{{post.id}}" method="GET" id="edit" class="btn btn-dark" >Edit</a>
+            <p><strong>{{post.liked.all.count}}</strong> people liked.</p>
+          {% elif request.user in post.liked.all %}
+             <a class="like" href="#" data-catid="{{ post.id }}" id="{{post.id}}" data-total="{{post.liked.all.count}}"  data-value="Unlike" value="submit"><i class="fa fa-thumbs-up" id="heart{{post.id}}" style="margin-right: 4px; color:blue;"></i><span id="liked{{post.id}}">{{post.liked.all.count}}</span></a>
+          {% else %}
+            <a class="like" href="#" data-catid="{{ post.id }}" id="{{post.id}}" data-total="{{post.liked.all.count}}"  data-value="Like" value="submit"><i class="fa fa-thumbs-up" id="heart{{post.id}}" style="margin-right: 4px; color:black;"></i><span id="liked{{post.id}}">{{post.liked.all.count}}</span></a>
+          {% endif %}
+        {% else %}
+          <p><strong>{{post.liked.all.count}}</strong> people liked.</p>
+        {% endif %}
+          <p class="time" style="float:right;">{{post.time}}</p>
+      </div>
+    </div>
+    </div>
+    {% endfor %}
+    <!-- Paginator -->
+    <hr>
+       <div class="container">
+         <ul class="pagination justify-content-center">
+       {% if obj.has_previous %}
+         <li class="page-item"><a href="?page=1" class="page-link">&laquo; First</a></li>
+         <li class="page-item"><a href="?page={{ obj.previous_page_number }}" class="page-link">Previous</a></li>
+       {% else %}
+         <li class="page-item disabled"><a class="page-link">&laquo; First</a></li>
+         <li class="page-item disabled"><a class="page-link">Previous</a></li>
+       {% endif %}
+
+         <li class="page-item"><a class="page-link">{{ obj.number }}</a></li>
+        {% if obj.has_next %}
+           <li class="page-item"><a href="?page={{ obj.next_page_number }}" class="page-link">Next</a></li>
+           <li class="page-item"><a href="?page={{ obj.paginator.num_pages }}" class="page-link">Last &raquo;</a></li>
+      {% else %}
+           <li class="page-item disabled"><a class="page-link">Next</a></li>
+           <li class="page-item disabled"><a class="page-link">Last &raquo;</a></li>
+     {% endif %}
+           </ul>
+       </div>
+  </div>
+
+{% endblock %}
